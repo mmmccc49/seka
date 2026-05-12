@@ -6,6 +6,7 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional
+from uuid import uuid4
 
 from .color_utils import DEFAULT_PRESET_PALETTES, normalize_hex
 
@@ -13,13 +14,21 @@ from .color_utils import DEFAULT_PRESET_PALETTES, normalize_hex
 PaletteItem = Dict[str, object]
 
 
+def new_palette_id() -> str:
+    return uuid4().hex
+
+
 @dataclass
 class AppState:
-    palettes: List[PaletteItem] = field(default_factory=lambda: [dict(item) for item in DEFAULT_PRESET_PALETTES])
+    palettes: List[PaletteItem] = field(
+        default_factory=lambda: [{**dict(item), "id": new_palette_id()} for item in DEFAULT_PRESET_PALETTES]
+    )
     history: List[str] = field(default_factory=list)
     last_color: Optional[str] = None
     copy_format: str = "HEX"
     theme: str = "moonlight"
+    hotkey_enabled: bool = True
+    hotkey_shortcut: str = "Ctrl+Shift+C"
 
 
 class StateStore:
@@ -30,6 +39,7 @@ class StateStore:
     def _normalize_palette_item(self, item: object) -> Optional[PaletteItem]:
         if not isinstance(item, dict):
             return None
+        palette_id = str(item.get("id", "")).strip() or new_palette_id()
         name = str(item.get("name", "Palette"))
         colors_raw = item.get("colors")
         if not isinstance(colors_raw, list):
@@ -45,7 +55,7 @@ class StateStore:
         if len(colors) == 0:
             return None
 
-        return {"name": name, "colors": colors[:4]}
+        return {"id": palette_id, "name": name, "colors": colors[:4]}
 
     def _migrate_old_palette(self, old_palette: List[object]) -> List[PaletteItem]:
         result: List[PaletteItem] = []
@@ -59,7 +69,7 @@ class StateStore:
         for i in range(0, len(buffer), 4):
             chunk = buffer[i : i + 4]
             if len(chunk) >= 1:
-                result.append({"name": f"Legacy {len(result) + 1}", "colors": chunk})
+                result.append({"id": new_palette_id(), "name": f"Legacy {len(result) + 1}", "colors": chunk})
 
         return result
 
@@ -80,6 +90,8 @@ class StateStore:
         last_color = raw.get("last_color")
         copy_format = raw.get("copy_format")
         theme = raw.get("theme")
+        hotkey_enabled = raw.get("hotkey_enabled")
+        hotkey_shortcut = raw.get("hotkey_shortcut")
 
         parsed: List[PaletteItem] = []
         if isinstance(palettes, list):
@@ -113,9 +125,21 @@ class StateStore:
 
         if isinstance(theme, str) and theme.lower() in {"moonlight", "dark"}:
             state.theme = theme.lower()
+        if isinstance(hotkey_enabled, bool):
+            state.hotkey_enabled = hotkey_enabled
+        if isinstance(hotkey_shortcut, str) and hotkey_shortcut.strip():
+            state.hotkey_shortcut = hotkey_shortcut.strip()
 
         if not state.palettes:
             state.palettes = [dict(item) for item in DEFAULT_PRESET_PALETTES]
+
+        seen_ids: set[str] = set()
+        for item in state.palettes:
+            palette_id = str(item.get("id", "")).strip()
+            if not palette_id or palette_id in seen_ids:
+                palette_id = new_palette_id()
+                item["id"] = palette_id
+            seen_ids.add(palette_id)
 
         return state
 
@@ -126,5 +150,7 @@ class StateStore:
             "last_color": state.last_color,
             "copy_format": state.copy_format,
             "theme": state.theme,
+            "hotkey_enabled": state.hotkey_enabled,
+            "hotkey_shortcut": state.hotkey_shortcut,
         }
         self.path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")

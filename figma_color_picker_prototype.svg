@@ -1,0 +1,139 @@
+﻿<svg width="1600" height="980" viewBox="0 0 1600 980" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="980" fill="#F6F3EE"/>
+
+  <!-- Main App Window -->
+  <g transform="translate(40,40)">
+    <rect x="0" y="0" width="1520" height="900" rx="24" fill="#F6F3EE" stroke="#E5DED4"/>
+
+    <!-- Left card: Advanced Palette -->
+    <g transform="translate(24,24)">
+      <rect x="0" y="0" width="920" height="852" rx="18" fill="#FFFCF8" stroke="#E5DED4"/>
+      <text x="20" y="40" fill="#2C2823" font-size="32" font-family="Segoe UI, PingFang SC, Microsoft YaHei" font-weight="700">高级配色卡</text>
+      <rect x="800" y="18" width="96" height="38" rx="11" fill="#FFFCF8" stroke="#E5DED4"/>
+      <text x="834" y="43" fill="#2C2823" font-size="16" font-family="Segoe UI, PingFang SC, Microsoft YaHei">设置</text>
+      <text x="20" y="70" fill="#7A736A" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">点击色卡可选中；右键删除/重命名/复制；支持单色/4色</text>
+
+      <rect x="20" y="90" width="880" height="590" rx="12" fill="#FFFCF8" stroke="#E5DED4"/>
+
+      <!-- Palette chips grid -->
+      <g transform="translate(36,108)">
+        <!-- Chip 1 -->
+        <g>
+          <rect x="0" y="0" width="192" height="124" rx="14" fill="#F3EEE7" stroke="#E5DED4"/>
+          <rect x="10" y="10" width="172" height="62" rx="10" fill="#E8A85B" stroke="#E5DED4"/>
+          <text x="10" y="94" fill="#2C2823" font-size="12" font-family="Segoe UI, PingFang SC, Microsoft YaHei" font-weight="700">Mono 1</text>
+          <text x="10" y="112" fill="#7A736A" font-size="10" font-family="Consolas, Menlo, monospace">#E8A85B</text>
+        </g>
+
+        <!-- Chip 2 -->
+        <g transform="translate(210,0)">
+          <rect x="0" y="0" width="192" height="124" rx="14" fill="#F3EEE7" stroke="#3B82F6" stroke-width="3"/>
+          <rect x="10" y="10" width="172" height="62" rx="10" fill="#ffffff" stroke="#E5DED4"/>
+          <rect x="10" y="10" width="86" height="31" fill="#B58143"/>
+          <rect x="96" y="10" width="86" height="31" fill="#F6F3EE"/>
+          <rect x="10" y="41" width="86" height="31" fill="#2C2823"/>
+          <rect x="96" y="41" width="86" height="31" fill="#7A736A"/>
+          <text x="10" y="94" fill="#2C2823" font-size="12" font-family="Segoe UI, PingFang SC, Microsoft YaHei" font-weight="700">Merged 2</text>
+          <text x="10" y="112" fill="#7A736A" font-size="10" font-family="Consolas, Menlo, monospace">#B58143 / #F6F3EE / #2C2823 / #7A736A</text>
+        </g>
+
+        <!-- Chip 3 -->
+        <g transform="translate(420,0)">
+          <rect x="0" y="0" width="192" height="124" rx="14" fill="#F3EEE7" stroke="#E5DED4"/>
+          <rect x="10" y="10" width="172" height="62" rx="10" fill="#ffffff" stroke="#E5DED4"/>
+          <rect x="10" y="10" width="86" height="31" fill="#A66A2E"/>
+          <rect x="96" y="10" width="86" height="31" fill="#FFFCF8"/>
+          <rect x="10" y="41" width="86" height="31" fill="#E5DED4"/>
+          <rect x="96" y="41" width="86" height="31" fill="#F3EEE7"/>
+          <text x="10" y="94" fill="#2C2823" font-size="12" font-family="Segoe UI, PingFang SC, Microsoft YaHei" font-weight="700">Custom 3</text>
+          <text x="10" y="112" fill="#7A736A" font-size="10" font-family="Consolas, Menlo, monospace">#A66A2E / #FFFCF8 / #E5DED4 / #F3EEE7</text>
+        </g>
+      </g>
+
+      <!-- Operation buttons row 1 -->
+      <g transform="translate(20,700)">
+        <rect x="0" y="0" width="238" height="40" rx="11" fill="#FFFCF8" stroke="#E5DED4"/>
+        <text x="20" y="26" fill="#2C2823" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">按最后取色生成色卡</text>
+
+        <rect x="250" y="0" width="210" height="40" rx="11" fill="#FFFCF8" stroke="#E5DED4"/>
+        <text x="272" y="26" fill="#2C2823" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">合并4个单色色卡</text>
+
+        <rect x="472" y="0" width="196" height="40" rx="11" fill="#FFFCF8" stroke="#E5DED4"/>
+        <text x="506" y="26" fill="#2C2823" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">删除选定配色卡</text>
+      </g>
+
+      <!-- Operation buttons row 2 -->
+      <g transform="translate(20,750)">
+        <rect x="0" y="0" width="120" height="40" rx="11" fill="#FFFCF8" stroke="#E5DED4"/>
+        <text x="33" y="26" fill="#2C2823" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">导出 TXT</text>
+
+        <rect x="130" y="0" width="126" height="40" rx="11" fill="#FFFCF8" stroke="#E5DED4"/>
+        <text x="160" y="26" fill="#2C2823" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">导出 JSON</text>
+
+        <rect x="266" y="0" width="176" height="40" rx="11" fill="#FFFCF8" stroke="#E5DED4"/>
+        <text x="295" y="26" fill="#2C2823" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">导出 CSS Variables</text>
+
+        <rect x="452" y="0" width="146" height="40" rx="11" fill="#FFFCF8" stroke="#E5DED4"/>
+        <text x="478" y="26" fill="#2C2823" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">导出 Tailwind</text>
+
+        <rect x="608" y="0" width="166" height="40" rx="11" fill="#FFFCF8" stroke="#E5DED4"/>
+        <text x="632" y="26" fill="#2C2823" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">导出 Figma Tokens</text>
+
+        <rect x="784" y="0" width="96" height="40" rx="11" fill="#FFFCF8" stroke="#E5DED4"/>
+        <text x="814" y="26" fill="#2C2823" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">导出 ASE</text>
+      </g>
+    </g>
+
+    <!-- Right card: Picker control -->
+    <g transform="translate(960,24)">
+      <rect x="0" y="0" width="536" height="852" rx="18" fill="#FFFCF8" stroke="#E5DED4"/>
+
+      <text x="20" y="40" fill="#2C2823" font-size="32" font-family="Segoe UI, PingFang SC, Microsoft YaHei" font-weight="700">屏幕取色</text>
+      <text x="20" y="70" fill="#7A736A" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">左键取色，右键取消；连续模式最多取4个</text>
+
+      <rect x="20" y="90" width="496" height="126" rx="18" fill="#FFFCF8" stroke="#E5DED4"/>
+      <rect x="34" y="104" width="234" height="98" rx="20" fill="#A66A2E"/>
+      <text x="84" y="164" fill="#FFFFFF" font-size="40" font-family="Segoe UI, PingFang SC, Microsoft YaHei" font-weight="700">单色取色</text>
+
+      <rect x="282" y="104" width="220" height="98" rx="20" fill="#A66A2E"/>
+      <text x="304" y="164" fill="#FFFFFF" font-size="28" font-family="Segoe UI, PingFang SC, Microsoft YaHei" font-weight="700">连续取色(最多4)</text>
+
+      <rect x="20" y="232" width="496" height="350" rx="18" fill="#FFFCF8" stroke="#E5DED4"/>
+      <text x="32" y="262" fill="#2C2823" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">复制格式</text>
+      <rect x="106" y="244" width="108" height="32" rx="11" fill="#FFFDF9" stroke="#E5DED4"/>
+      <text x="144" y="265" fill="#2C2823" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">HEX</text>
+
+      <text x="32" y="304" fill="#2C2823" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">最后取色 HEX</text>
+      <rect x="32" y="312" width="452" height="34" rx="11" fill="#FFFDF9" stroke="#E5DED4"/>
+      <text x="44" y="334" fill="#7A736A" font-size="13" font-family="Consolas, Menlo, monospace">#A66A2E</text>
+
+      <text x="32" y="376" fill="#2C2823" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">最后取色 RGB</text>
+      <rect x="32" y="384" width="452" height="34" rx="11" fill="#FFFDF9" stroke="#E5DED4"/>
+      <text x="44" y="406" fill="#7A736A" font-size="13" font-family="Consolas, Menlo, monospace">rgb(166, 106, 46)</text>
+
+      <text x="32" y="448" fill="#2C2823" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">最后取色 HSL</text>
+      <rect x="32" y="456" width="452" height="34" rx="11" fill="#FFFDF9" stroke="#E5DED4"/>
+      <text x="44" y="478" fill="#7A736A" font-size="13" font-family="Consolas, Menlo, monospace">hsl(30, 57%, 42%)</text>
+
+      <text x="20" y="612" fill="#7A736A" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">历史记录（最近 10 次）</text>
+      <rect x="20" y="624" width="496" height="176" rx="11" fill="#FFFDF9" stroke="#E5DED4"/>
+      <rect x="30" y="634" width="476" height="28" rx="8" fill="rgba(166,106,46,0.14)"/>
+      <text x="42" y="652" fill="#2C2823" font-size="13" font-family="Consolas, Menlo, monospace">#A66A2E</text>
+      <text x="42" y="680" fill="#2C2823" font-size="13" font-family="Consolas, Menlo, monospace">#E8A85B</text>
+      <text x="42" y="708" fill="#2C2823" font-size="13" font-family="Consolas, Menlo, monospace">#F6F3EE</text>
+      <text x="42" y="736" fill="#2C2823" font-size="13" font-family="Consolas, Menlo, monospace">#2C2823</text>
+
+      <text x="20" y="832" fill="#7A736A" font-size="14" font-family="Segoe UI, PingFang SC, Microsoft YaHei">就绪</text>
+    </g>
+  </g>
+
+  <!-- Overlay magnifier prototype -->
+  <g transform="translate(1260,740)">
+    <rect x="0" y="0" width="80" height="124" rx="10" fill="rgba(0,0,0,0.70)"/>
+    <rect x="0" y="0" width="80" height="80" fill="#B58143"/>
+    <line x1="40" y1="0" x2="40" y2="80" stroke="rgba(255,255,255,0.9)"/>
+    <line x1="0" y1="40" x2="80" y2="40" stroke="rgba(255,255,255,0.9)"/>
+    <text x="6" y="96" fill="#FFFFFF" font-size="12" font-family="Consolas, Menlo, monospace">#B58143</text>
+    <text x="6" y="116" fill="#E1E1E1" font-size="12" font-family="Consolas, Menlo, monospace">1/4</text>
+  </g>
+</svg>

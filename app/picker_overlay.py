@@ -2,33 +2,37 @@
 
 from __future__ import annotations
 
-from typing import Callable, Optional, Tuple
+from typing import Callable, List, Optional, Tuple
 
 from PySide6.QtCore import QPoint, QRect, QTimer, Qt, Signal
 from PySide6.QtGui import QColor, QCursor, QGuiApplication, QImage, QPainter, QPen
 from PySide6.QtWidgets import QApplication, QWidget
 
-from .color_utils import format_color
+from .color_utils import all_formats
 
 RGB = Tuple[int, int, int]
 
 
 class PickerOverlay(QWidget):
-    picked = Signal(tuple)
+    picked = Signal(list)
     canceled = Signal()
 
     def __init__(self, format_provider: Callable[[], str], parent=None) -> None:
         super().__init__(parent)
         self._format_provider = format_provider
 
-        self._magnifier_size = 80
+        self._magnifier_size = 96
         self._sample_size = 15
         self._refresh_ms = 16
 
         self._cursor_pos = QCursor.pos()
         self._sample_image: Optional[QImage] = None
         self._current_rgb: RGB = (0, 0, 0)
-        self._current_text = "#000000"
+        self._current_formats = {"HEX": "#000000", "RGB": "rgb(0, 0, 0)", "HSL": "hsl(0, 0%, 0%)"}
+        self._frozen = False
+
+        self._max_picks = 1
+        self._captured: List[RGB] = []
 
         self._timer = QTimer(self)
         self._timer.setInterval(self._refresh_ms)
@@ -46,7 +50,10 @@ class PickerOverlay(QWidget):
             | Qt.BypassWindowManagerHint
         )
 
-    def start(self) -> None:
+    def start(self, max_picks: int = 1) -> None:
+        self._max_picks = max(1, min(4, int(max_picks)))
+        self._captured = []
+        self._frozen = False
         self._set_virtual_geometry()
         self.show()
         self.raise_()
@@ -66,12 +73,11 @@ class PickerOverlay(QWidget):
         for screen in screens[1:]:
             rect = rect.united(screen.geometry())
         self.setGeometry(rect)
-        # Force a non-transparent fill on the whole overlay so mouse events
-        # are captured everywhere and never click-through to underlying apps.
         self.setMask(rect.translated(-rect.topLeft()))
 
     def _tick(self) -> None:
-        self._sample_at_cursor()
+        if not self._frozen:
+            self._sample_at_cursor()
         self.update()
 
     def _sample_at_cursor(self) -> None:
@@ -109,54 +115,89 @@ class PickerOverlay(QWidget):
 
         color = image.pixelColor(rx, ry)
         self._current_rgb = (color.red(), color.green(), color.blue())
-        self._current_text = format_color(self._current_rgb, self._format_provider())
+        self._current_formats = all_formats(self._current_rgb)
         self._sample_image = image
 
     def mouseMoveEvent(self, event):
         self._cursor_pos = QCursor.pos()
+        if self._frozen:
+            self.update()
+            super().mouseMoveEvent(event)
+            return
         self.update()
         super().mouseMoveEvent(event)
 
     def mousePressEvent(self, event):
-        if event.button() == Qt.LeftButton:
-            event.accept()
-            return
-        if event.button() == Qt.RightButton:
+        if event.button() in (Qt.LeftButton, Qt.RightButton):
             event.accept()
             return
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self._sample_at_cursor()
+            if not self._frozen:
+                self._sample_at_cursor()
+            self._captured.append(self._current_rgb)
             QApplication.beep()
-            self._finish_pick()
+            if len(self._captured) >= self._max_picks:
+                self._finish_pick()
             event.accept()
             return
+
         if event.button() == Qt.RightButton:
-            self._cancel()
+            if self._max_picks > 1 and self._captured:
+                self._finish_pick()
+            else:
+                self._cancel()
             event.accept()
             return
+
         super().mouseReleaseEvent(event)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self._cancel()
             return
+        if event.key() == Qt.Key_Space:
+            self._frozen = not self._frozen
+            self.update()
+            return
+        if event.key() in (Qt.Key_Backspace, Qt.Key_Delete) and self._captured:
+            self._captured.pop()
+            self.update()
+            return
+        if event.key() in (Qt.Key_Return, Qt.Key_Enter) and self._captured:
+            self._finish_pick()
+            return
+        if event.key() in (Qt.Key_Plus, Qt.Key_Equal, Qt.Key_BracketRight):
+            self._magnifier_size = min(144, self._magnifier_size + 8)
+            self.update()
+            return
+        if event.key() in (Qt.Key_Minus, Qt.Key_BracketLeft):
+            self._magnifier_size = max(72, self._magnifier_size - 8)
+            self.update()
+            return
         super().keyPressEvent(event)
+
+    def wheelEvent(self, event) -> None:
+        delta = event.angleDelta().y()
+        if delta:
+            self._magnifier_size = max(72, min(144, self._magnifier_size + (8 if delta > 0 else -8)))
+            self.update()
+            event.accept()
+            return
+        super().wheelEvent(event)
 
     def _cancel(self) -> None:
         self._timer.stop()
         self.releaseKeyboard()
         self.releaseMouse()
-        # Delay hide to avoid OS replaying right-click to underlying app.
         QTimer.singleShot(40, self._emit_canceled)
 
     def _finish_pick(self) -> None:
         self._timer.stop()
         self.releaseKeyboard()
         self.releaseMouse()
-        # Delay hide to avoid click replay to underlying app/window.
         QTimer.singleShot(40, self._emit_picked)
 
     def _emit_canceled(self) -> None:
@@ -165,12 +206,11 @@ class PickerOverlay(QWidget):
 
     def _emit_picked(self) -> None:
         self.hide()
-        self.picked.emit(self._current_rgb)
+        self.picked.emit(list(self._captured))
 
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
-        # Keep full widget non-transparent for hit test; alpha=1 is visually transparent.
         painter.fillRect(self.rect(), QColor(0, 0, 0, 1))
 
         if self._sample_image is None:
@@ -179,12 +219,14 @@ class PickerOverlay(QWidget):
         local_cursor = self._cursor_pos - self.geometry().topLeft()
         box_x, box_y = self._magnifier_anchor(local_cursor)
 
-        panel_rect = QRect(box_x, box_y, self._magnifier_size, self._magnifier_size + 26)
+        panel_w = max(self._magnifier_size + 18, 194)
+        panel_h = self._magnifier_size + 116
+        panel_rect = QRect(box_x, box_y, panel_w, panel_h)
         painter.setPen(Qt.NoPen)
         painter.setBrush(QColor(0, 0, 0, 170))
         painter.drawRoundedRect(panel_rect, 10, 10)
 
-        view_rect = QRect(box_x, box_y, self._magnifier_size, self._magnifier_size)
+        view_rect = QRect(box_x + 9, box_y + 9, self._magnifier_size, self._magnifier_size)
         zoomed = self._sample_image.scaled(
             self._magnifier_size,
             self._magnifier_size,
@@ -197,22 +239,56 @@ class PickerOverlay(QWidget):
         pen = QPen(QColor(255, 255, 255, 220))
         pen.setWidth(1)
         painter.setPen(pen)
-        painter.drawLine(box_x + center, box_y, box_x + center, box_y + self._magnifier_size)
-        painter.drawLine(box_x, box_y + center, box_x + self._magnifier_size, box_y + center)
+        painter.drawLine(view_rect.left() + center, view_rect.top(), view_rect.left() + center, view_rect.bottom())
+        painter.drawLine(view_rect.left(), view_rect.top() + center, view_rect.right(), view_rect.top() + center)
 
         painter.setPen(QColor(255, 255, 255))
+        text_x = box_x + 10
+        text_y = box_y + self._magnifier_size + 15
         painter.drawText(
-            QRect(box_x + 6, box_y + self._magnifier_size + 3, self._magnifier_size - 12, 20),
+            QRect(text_x, text_y, panel_w - 20, 18),
             Qt.AlignLeft | Qt.AlignVCenter,
-            self._current_text,
+            f"{self._current_formats['HEX']}  {self._captured_label()}",
         )
+
+        painter.setPen(QColor(230, 230, 230))
+        painter.drawText(
+            QRect(text_x, text_y + 19, panel_w - 20, 18),
+            Qt.AlignLeft | Qt.AlignVCenter,
+            self._current_formats["RGB"],
+        )
+        painter.drawText(
+            QRect(text_x, text_y + 38, panel_w - 20, 18),
+            Qt.AlignLeft | Qt.AlignVCenter,
+            self._current_formats["HSL"],
+        )
+
+        painter.setPen(QColor(205, 205, 205))
+        hint = "Space 锁定" if not self._frozen else "已锁定"
+        painter.drawText(
+            QRect(text_x, text_y + 58, panel_w - 20, 18),
+            Qt.AlignLeft | Qt.AlignVCenter,
+            f"{hint}  右键结束/取消",
+        )
+
+        if self._captured:
+            swatch_y = text_y + 82
+            for idx, rgb in enumerate(self._captured[:4]):
+                painter.setPen(QPen(QColor(255, 255, 255, 190), 1))
+                painter.setBrush(QColor(*rgb))
+                painter.drawRoundedRect(QRect(text_x + idx * 26, swatch_y, 20, 14), 4, 4)
+
+    def _captured_label(self) -> str:
+        return f"{len(self._captured)}/{self._max_picks}"
+
+    def _panel_size(self) -> Tuple[int, int]:
+        return max(self._magnifier_size + 18, 194), self._magnifier_size + 116
 
     def _magnifier_anchor(self, local_cursor: QPoint) -> Tuple[int, int]:
         offset = 15
         pad = 8
         rect = self.rect()
-        panel_w = self._magnifier_size
-        panel_h = self._magnifier_size + 26
+        panel_w, panel_h = self._panel_size()
 
         x = local_cursor.x() + offset
         y = local_cursor.y() + offset
