@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QIcon
 from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
@@ -42,6 +42,7 @@ def create_shortcut(path: Path, target: Path, description: str) -> None:
     shortcut = shell.CreateShortcut(str(path))
     shortcut.TargetPath = str(target)
     shortcut.WorkingDirectory = str(target.parent)
+    shortcut.IconLocation = str(target)
     shortcut.Description = description
     shortcut.Save()
 
@@ -71,6 +72,9 @@ class InstallerWindow(QWidget):
     def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle(f"{APP_NAME} Setup")
+        icon_path = resource_dir() / "app_icon.ico"
+        if icon_path.exists():
+            self.setWindowIcon(QIcon(str(icon_path)))
         self.setFixedSize(420, 260)
 
         layout = QVBoxLayout(self)

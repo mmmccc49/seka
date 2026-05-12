@@ -486,6 +486,10 @@ class MainWindow(QMainWindow):
         return self.hotkey.register()
 
     def _create_app_icon(self) -> QIcon:
+        icon_path = Path(__file__).resolve().parents[1] / "assets" / "app_icon.ico"
+        if icon_path.exists():
+            return QIcon(str(icon_path))
+
         pixmap = QPixmap(64, 64)
         pixmap.fill(Qt.transparent)
         painter = QPainter(pixmap)
